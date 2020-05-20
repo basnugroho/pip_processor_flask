@@ -8,7 +8,10 @@ from datetime import date, datetime
 import mysql.connector
 
 app = Flask(__name__)
-
+@app.route("/")
+def hello():
+    return "Hello, ini adalah base url flask"
+    
 def df_coordinates_to_tuple(single_poly_coordinates_str):
         # split coordinate data by ','
         coordinates = single_poly_coordinates_str.split(',')
@@ -43,9 +46,10 @@ def check_locations_pip(poin_odp, poly_cluster):
     return poin.within(poly)
 
 def print_to_file(log):
+    path = "../point_in_polygon_uploader/storage/tmp/uploads/"
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    f=open("log.txt", "a+")
+    f=open(path+"log.txt", "a+")
     f.write("["+dt_string+"]\t"+log+"\n")
     f.close
 
@@ -65,8 +69,9 @@ def process_pip(user_id):
     print(log)
     print_to_file(log)
     # convert data excel koordinat cluster untuk polygon
-    cluster_df = pd.read_excel("cluster.xlsx")
-    odp_df = pd.read_csv("odp.csv", delimiter=";")
+    path = "../point_in_polygon_uploader/storage/tmp/uploads/"
+    cluster_df = pd.read_excel(path+"cluster.xlsx")
+    odp_df = pd.read_csv(path+"odp.csv", delimiter=";")
 
     odp_df['cluster_id'] = ''
 
@@ -136,15 +141,12 @@ def process_pip(user_id):
     print("step 6: generate excel file")
     log = "step 6: generate excel file"
     print_to_file(log)
+    path = "../point_in_polygon_uploader/storage/tmp/uploads/"
     output_file = str(date.today())+" Koordinat ODP dengan cluster_id.xlsx"
-    odp_df.to_excel(output_file)
+    odp_df.to_excel(path+output_file)
     print('done and dusted')
     print_to_file('done and dusted')
     return 'done'
-
-@app.route("/")
-def hello():
-    return "Hello, ini adalah base url flask"
 
 if __name__ == "__main__":
     app.run()
